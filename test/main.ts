@@ -1,9 +1,9 @@
 // @deno-types=../svelte.d.ts
 import App from './App.svelte'
 import { getCapacitorInstance, isMobile } from '../runtime.ts'
-import { setup, plugins } from '../../design/mod.ts'
+import { setupJiknoDesign } from '../../design/mod.ts'
 
-setup()
+setupJiknoDesign()
 
 new App({
 	target: document.body,

@@ -10,12 +10,10 @@
 	}
 </script>
 
-<div safe-area class="h-fulls {''}">
+<div safe-area class="h-full">
 	<div class="p-20 h-full flex flex-col items-stretch justify-center">
 		<div>
 			<h1 class="text-center text-3xl">Hello, {name}!</h1>
-
-			<button class="text-btn">Do Something</button>
 
 			<div class="h-20" />
 
@@ -27,9 +25,9 @@
 
 				<div class="h-20" />
 
-				<button class="btn btn-spacious w-full" on:click={() => (imagePath = null)}> Remove Selfie </button>
+				<button class="btn-spacious w-full" on:click={() => (imagePath = null)}> Remove Selfie </button>
 			{:else}
-				<button class="btn w-full" on:click={getSelfie}>Take Selfie</button>
+				<button class="btn-primary-spacious w-full" on:click={getSelfie}>Take Selfie</button>
 			{/if}
 		</div>
 	</div>

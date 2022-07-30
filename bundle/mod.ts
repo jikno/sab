@@ -164,6 +164,7 @@ export interface BundleParams {
 
 /** Bundle a module graph into a single JS file.  Function resolves after the first build, even if `watch` is `true`. */
 export async function bundle(params: BundleParams) {
+	let isFirstBuild = true
 	const initialResources = Deno.resources()
 	const errors: string[] = []
 
@@ -177,6 +178,8 @@ export async function bundle(params: BundleParams) {
 	}
 
 	async function onRebuild() {
+		isFirstBuild = false
+
 		watcherLog('Rebuilt due to changes')
 		await emitLog()
 
@@ -197,6 +200,12 @@ export async function bundle(params: BundleParams) {
 		if (params.watch) watcherLog('Waiting for changes to rebuild...')
 	} catch (error) {
 		errors.push(error.message)
+	}
+
+	if (errors.length) {
+		if (params.watch && !isFirstBuild) watcherLog('Build Failed.  Waiting for changes to restart...')
+		else if (params.watch) throw new Error('Build failed.  File watcher could not recover')
+		else throw new Error('Bundle failed')
 	}
 
 	if (!params.watch || errors.length) closeOpenResources(initialResources)
