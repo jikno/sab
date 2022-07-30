@@ -1,4 +1,4 @@
-import { esBuild, pathUtils, base64 } from './deps.ts'
+import { esBuild, pathUtils, base64, unwindCompiler } from './deps.ts'
 import { transformSvelte } from './transform-svelte.ts'
 import { loadLocal } from './load-local.ts'
 import { loadRemote } from './load-remote.ts'
@@ -6,6 +6,7 @@ import { colors } from '../deps.ts'
 
 interface ResolverParams {
 	reload: boolean
+	unwindParams: UnwindParams
 }
 
 const resolver = (params: ResolverParams): esBuild.Plugin => ({
@@ -46,7 +47,7 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 			const debug = async (debugMatcher?: RegExp) => {
 				const result = await (async () => {
 					if (fileUrl.endsWith('.ts')) return { contents: decode(bytes), loader: 'ts' }
-					if (fileUrl.endsWith('.svelte')) return await transformSvelte(decode(bytes), url)
+					if (fileUrl.endsWith('.svelte')) return await transformSvelte(decode(bytes), url, params.unwindParams)
 					if (fileUrl.endsWith('.jpeg')) return transformToString(buildBase64DataUrl('image/jpeg', base64.encode(bytes)))
 					if (fileUrl.endsWith('.png')) return transformToString(buildBase64DataUrl('image/png', base64.encode(bytes)))
 					if (fileUrl.endsWith('.svg')) return transformToString(buildBase64DataUrl('image/svg+xml', base64.encode(bytes)))
@@ -139,6 +140,13 @@ function closeOpenResources(initialResources: Deno.ResourceMap) {
 	}
 }
 
+export interface UnwindParams extends unwindCompiler.InsertUnwindHooks {
+	/**  If `true`, Sab will not attempt to add Unwind runtime callers to remote modules */
+	noCompileRemote?: boolean
+	/** If `true`, Sab will not attempt to add Unwind runtime callers to local modules */
+	noCompileLocal?: boolean
+}
+
 export interface BundleParams {
 	/** The file to start the bundle pipeline at */
 	inputFile: string
@@ -150,6 +158,8 @@ export interface BundleParams {
 	reload?: boolean
 	/** Will be called every time the bundle is rebuilt.  Ignored if `watch` is false. */
 	onRebuildDone?(): Promise<void>
+	/** Parameters to configure Unwind with */
+	unwind?: UnwindParams
 }
 
 /** Bundle a module graph into a single JS file.  Function resolves after the first build, even if `watch` is `true`. */
@@ -179,7 +189,7 @@ export async function bundle(params: BundleParams) {
 			entryPoints: [params.inputFile],
 			bundle: true,
 			outfile: params.outputFile,
-			plugins: [resolver({ reload: params.reload || false })],
+			plugins: [resolver({ reload: params.reload || false, unwindParams: params.unwind || {} })],
 			format: 'iife',
 		})
 

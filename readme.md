@@ -4,15 +4,14 @@
 
 > Sabbatical: (noun) A rest.  It could be a rest at the end of the week.  It could be a rest for a year after 6 years at a hard job.  But in this case, it is a restful break from the headaches of endless configuration by way of a simple and functional framework.
 
-An opinionated framework for building mobile and web apps using Svelte via the Deno ecosystem.
-
-# TODO
-- Unwind support
+An opinionated framework for building mobile and web apps using Svelte and Tailwind via the Deno ecosystem.
 
 ## Usage
 
+> NOTE: The below example outlines how to build an application for a particular platform.  In your application's runtime, however, you must [initialize Unwind](https://github.com/jikno/unwind#runtime-usage).
+
 ```ts
-import { buildWeb, buildMobile, openMobile, emptyCache } from 'https://code.jikno.com/svelte-app-builder/mod.ts'
+import { buildWeb, buildMobile, openMobile, emptyCache } from 'https://code.jikno.com/sab/mod.ts'
 
 // If you want to build a web app...
 await buildWeb({
@@ -99,6 +98,23 @@ await bundle({
 		// ...send a reload message to the client
 	}
 })
+```
+
+## Tailwind
+
+Sab uses [Unwind](https://github.com/jikno/unwind) to provide tailwind support.  In Unwind, the theme and aliases are configured at runtime.  For information on how to do this, consult the [Unwind docs](https://github.com/jikno/unwind#runtime-usage).
+
+Unwind does, however, have a compile step.  You shouldn't need to worry about this because it is handled automatically by Sab.  There are, however, some configurations that can be applied to the process.
+
+Each of the `build*` and the `bundle` function takes in an optional `unwind` parameter.  In addition to the [parameters provided by unwind](https://github.com/jikno/unwind#compiler-usage), this object takes two parameters.
+
+```ts
+export interface UnwindParams extends unwindCompiler.InsertUnwindHooks {
+	/**  If `true`, Sab will not attempt to add Unwind runtime callers to remote modules */
+	noCompileRemote?: boolean
+	/** If `true`, Sab will not attempt to add Unwind runtime callers to local modules */
+	noCompileLocal?: boolean
+}
 ```
 
 ## Cli

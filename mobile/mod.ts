@@ -1,6 +1,5 @@
-import { shIgnore } from 'https://denopkg.com/Vehmloewff/deno-utils@master/mod.ts'
 import { colors, pathUtils, utils } from '../deps.ts'
-import { bundle } from '../mod.ts'
+import { bundle, UnwindParams } from '../mod.ts'
 import { generatePluginsList } from './boilerplate.ts'
 import { CapacitorConfig } from './config.ts'
 import { setupCapacitor, setupMobileStatics } from './setup.ts'
@@ -22,6 +21,8 @@ export interface BuildMobileParams {
 	plugins?: string[]
 	/** Additional configuration options that can be passed to capacitor */
 	capacitorConfig?: CapacitorConfig
+	/** Unwind configuration */
+	unwind?: UnwindParams
 }
 
 /** Build project for the mobile platforms, ios and android */
@@ -54,6 +55,7 @@ export async function buildMobile(params: BuildMobileParams) {
 				// And then sync the changes to the platform-specific projects
 				await capacitorSync(capDir)
 			},
+			unwind: params.unwind,
 		})
 
 		// After we have bundled, sync the latest changes over to the platform projects
@@ -96,7 +98,7 @@ export interface OpenMobileParams {
 
 /** Open the app-specific IDE for editing platform-specific code and configurations */
 export async function openMobile(params: OpenMobileParams) {
-	await shIgnore(`npx cap open ${params.IDE}`, { cwd: pathUtils.join(params.outputDir, 'capacitor') })
+	await utils.shIgnore(`npx cap open ${params.IDE}`, { cwd: pathUtils.join(params.outputDir, 'capacitor') })
 
 	console.log(colors.blue('Open'), colors.gray(`${params.IDE} code IDE`))
 }

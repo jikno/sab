@@ -1,6 +1,6 @@
 import { readText } from 'https://denopkg.com/Vehmloewff/deno-utils@master/mod.ts'
 import { pathUtils, utils } from '../deps.ts'
-import { bundle } from '../mod.ts'
+import { bundle, UnwindParams } from '../mod.ts'
 import { http, fileServer, colors } from './deps.ts'
 
 export interface BuildWebOptions {
@@ -14,6 +14,8 @@ export interface BuildWebOptions {
 	reload?: boolean
 	/** The port that the dev server is to start on.  Ignored if watch is `false` */
 	port?: number
+	/** COnfiguration for unwind */
+	unwind?: UnwindParams
 }
 
 export async function buildWeb(params: BuildWebOptions) {
@@ -60,6 +62,7 @@ export async function buildWeb(params: BuildWebOptions) {
 
 			return Promise.resolve()
 		},
+		unwind: params.unwind,
 	})
 
 	if (params.watch)

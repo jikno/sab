@@ -1,10 +1,7 @@
-import {
-	compile as compileSvelte,
-	preprocess as preprocessSvelte,
-	parse as parseSvelte,
-} from 'https://cdn.jsdelivr.net/npm/svelte@3.49.0/compiler.mjs'
+import { compile as compileSvelte, preprocess as preprocessSvelte } from 'https://cdn.jsdelivr.net/npm/svelte@3.49.0/compiler.mjs'
 import { addTrailingLog, removeTrailingLog } from './code.ts'
-import { esBuild } from './deps.ts'
+import { esBuild, unwindCompiler } from './deps.ts'
+import { UnwindParams } from './mod.ts'
 
 export interface SvelteTransformation {
 	contents?: string
@@ -12,7 +9,7 @@ export interface SvelteTransformation {
 	errors?: esBuild.PartialMessage[]
 }
 
-export async function transformSvelte(code: string, url: URL): Promise<SvelteTransformation> {
+export async function transformSvelte(code: string, url: URL, unwindParams: UnwindParams): Promise<SvelteTransformation> {
 	const filepath = url.pathname
 	const filename = url.protocol === 'file:' ? filepath : url.toString()
 
@@ -33,6 +30,9 @@ export async function transformSvelte(code: string, url: URL): Promise<SvelteTra
 		}
 		return { text: message, location }
 	}
+
+	// Insert unwind runtime callers
+	code = runUnwind(code, url, unwindParams)
 
 	// Convert Svelte syntax to JavaScript
 	const transformation = await (async (): Promise<SvelteTransformation> => {
@@ -78,13 +78,14 @@ async function preprocessScript({ content, attributes }: PreprocessScriptParams)
 	return res
 }
 
-// interface PreprocessMarkupParams {
-// 	content: string
-// }
+function runUnwind(code: string, url: URL, unwindParams: UnwindParams): string {
+	if (url.protocol === 'file:') {
+		if (unwindParams.noCompileLocal) return code
 
-// function preprocessMarkup({ content }: PreprocessMarkupParams) {
-// 	const ast = parseSvelte(content)
-// 	console.log(ast)
+		return unwindCompiler.insertUnwindHooks(code, unwindParams)
+	}
 
-// 	return { code: content }
-// }
+	if (unwindParams.noCompileRemote) return code
+
+	return unwindCompiler.insertUnwindHooks(code, unwindParams)
+}
