@@ -12,7 +12,14 @@ if (command === 'mobile') {
 		appId: 'com.vehmloewff.captest',
 		appName: 'Cap Mobile Test',
 		reload: true,
-		plugins: ['@capacitor/camera'],
+		plugins: ['@capacitor/camera', '@capacitor/splash-screen'],
+		capacitorConfig: {
+			plugins: {
+				SplashScreen: {
+					backgroundColor: '#21252B',
+				},
+			},
+		},
 	})
 
 	await openMobile({
