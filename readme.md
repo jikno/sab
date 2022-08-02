@@ -135,5 +135,5 @@ Heck yeah!
 git clone https://github.com/jikno/sab
 cd sab
 cd test
-deno run -A dev.ts
+deno run -A dev.ts web # or mobile
 ```
