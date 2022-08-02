@@ -3,6 +3,7 @@ import { transformSvelte } from './transform-svelte.ts'
 import { loadLocal } from './load-local.ts'
 import { loadRemote } from './load-remote.ts'
 import { colors } from '../deps.ts'
+import { runUnwind } from './css.ts'
 
 interface ResolverParams {
 	reload: boolean
@@ -16,7 +17,7 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 			const resolveDir = args.importer ? urlDirname(args.importer) : `file://${args.resolveDir}`
 
 			if (args.path.startsWith('file://') || args.path.startsWith('http://') || args.path.startsWith('https://'))
-				return { path: potentiallyResolveHelp(args.path), namespace: 'resolve' }
+				return { path: potentiallyResolveBridge(args.path), namespace: 'resolve' }
 
 			const importingUrl = new URL(resolveDir)
 
@@ -24,7 +25,7 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 				return buildResolveResult({
 					protocol: importingUrl.protocol,
 					host: importingUrl.host,
-					pathname: potentiallyResolveHelp(args.path),
+					pathname: potentiallyResolveBridge(args.path),
 				})
 
 			const newPath = pathUtils.join(importingUrl.pathname, args.path)
@@ -32,7 +33,7 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 			return buildResolveResult({
 				protocol: importingUrl.protocol,
 				host: importingUrl.host,
-				pathname: potentiallyResolveHelp(newPath),
+				pathname: potentiallyResolveBridge(newPath),
 			})
 		})
 
@@ -47,6 +48,7 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 			const debug = async (debugMatcher?: RegExp) => {
 				const result = await (async () => {
 					if (fileUrl.endsWith('.ts')) return { contents: decode(bytes), loader: 'ts' }
+					if (fileUrl.endsWith('.tsx')) return { contents: runUnwind(decode(bytes), url, params.unwindParams), loader: 'tsx' }
 					if (fileUrl.endsWith('.svelte')) return await transformSvelte(decode(bytes), url, params.unwindParams)
 					if (fileUrl.endsWith('.jpeg')) return transformToString(buildBase64DataUrl('image/jpeg', base64.encode(bytes)))
 					if (fileUrl.endsWith('.png')) return transformToString(buildBase64DataUrl('image/png', base64.encode(bytes)))
@@ -94,8 +96,8 @@ function buildResolveResult(params: BuildUrlParams): esBuild.OnResolveResult {
 	}
 }
 
-function potentiallyResolveHelp(path: string) {
-	if (path.endsWith('.help')) return `${path}.ts`
+function potentiallyResolveBridge(path: string) {
+	if (path.endsWith('.bridge')) return `${path}.ts`
 
 	return path
 }

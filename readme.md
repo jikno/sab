@@ -71,11 +71,11 @@ The Svelte Language server does not like it when `.ts` and `.js` extensions are 
 
 Although imports with extensions and imports from urls in svelte files are handled just fine with this bundler, they will look really ugly in VsCode.
 
-Happily, however, we have "help" files.  When a file path is resolved that ends with `.help`, a `.ts` extension is automatically appended.  This allows you to import from urls bunches of different functions into a `*.help.ts` file and export them.  Your svelte components can then import that `*.help.ts` file like this...
+Happily, however, we have "bridge" files.  When a file path is resolved that ends with `.bridge`, a `.ts` extension is automatically appended.  This allows you to import from urls bunches of different functions into a `*.bridge.ts` file and export them.  Your svelte components can then import that `*.bridge.ts` file like this...
 
 ```html
 <script lang="ts">
-	import { foo, bar } from './foo.help'
+	import { foo, bar } from './foo.bridge'
 </script>
 ```
 
