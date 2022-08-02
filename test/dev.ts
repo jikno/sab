@@ -11,11 +11,12 @@ if (command === 'mobile') {
 		watch: true,
 		appId: 'com.vehmloewff.captest',
 		appName: 'Cap Mobile Test',
-		reload: true,
+		// reload: true,
 		plugins: ['@capacitor/camera', '@capacitor/splash-screen'],
 		capacitorConfig: {
 			plugins: {
 				SplashScreen: {
+					launchAutoHide: false,
 					backgroundColor: '#21252B',
 				},
 			},

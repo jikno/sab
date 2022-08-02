@@ -1,6 +1,7 @@
 import { compile as compileSvelte, preprocess as preprocessSvelte } from 'https://cdn.jsdelivr.net/npm/svelte@3.49.0/compiler.mjs'
 import { addTrailingLog, removeTrailingLog } from './code.ts'
-import { esBuild, unwindCompiler } from './deps.ts'
+import { runUnwind } from './css.ts'
+import { esBuild } from './deps.ts'
 import { UnwindParams } from './mod.ts'
 
 export interface SvelteTransformation {
@@ -76,16 +77,4 @@ async function preprocessScript({ content, attributes }: PreprocessScriptParams)
 	res.code = removeTrailingLog(res.code)
 
 	return res
-}
-
-function runUnwind(code: string, url: URL, unwindParams: UnwindParams): string {
-	if (url.protocol === 'file:') {
-		if (unwindParams.noCompileLocal) return code
-
-		return unwindCompiler.insertUnwindHooks(code, unwindParams)
-	}
-
-	if (unwindParams.noCompileRemote) return code
-
-	return unwindCompiler.insertUnwindHooks(code, unwindParams)
 }

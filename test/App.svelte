@@ -1,33 +1,32 @@
 <script lang="ts">
-	import { takeSelfie } from './svelte.help'
+	import { transitions, UI } from './deps.bridge'
+	import { AppState } from './state.bridge'
 
-	export let name: string
-	let imagePath: string | null = null
+	export let state: AppState
 
-	async function getSelfie() {
-		const path = await takeSelfie()
-		imagePath = path
-	}
+	const { slide } = transitions
+	const { photoUrl } = state
 </script>
 
 <div safe-area class="h-full">
 	<div class="p-20 h-full flex flex-col items-stretch justify-center">
 		<div>
-			<h1 class="text-center text-3xl">Hello, {name}!</h1>
+			<h1 class="text-center text-3xl">Hello, {state.name}!</h1>
 
 			<div class="h-20" />
 
-			{#if imagePath}
-				<div
-					class="mx-auto w-200 h-200 rounded-full border-2 boder-red bg-center bg-cover bg-no-repeat"
-					style="background-image: url('{imagePath}')"
-				/>
+			{#if $photoUrl}
+				<div in:slide|local>
+					<div class="mx-auto w-200 h-200 rounded-full border-2 border-dark dark:border-light overflow-hidden">
+						<UI.Image src={$photoUrl} />
+					</div>
 
-				<div class="h-20" />
+					<div class="h-20" />
+				</div>
 
-				<button class="btn-spacious w-full" on:click={() => (imagePath = null)}> Remove Selfie </button>
+				<button class="btn-spacious w-full" on:click={() => state.removePhoto()}>Remove Selfie</button>
 			{:else}
-				<button class="btn-primary-spacious w-full" on:click={getSelfie}>Take Selfie</button>
+				<button class="btn-primary-spacious w-full" on:click={() => state.takeSelfie()}>Take Selfie</button>
 			{/if}
 		</div>
 	</div>

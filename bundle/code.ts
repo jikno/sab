@@ -17,7 +17,7 @@ const tsReservedWords = [
 	'finally',
 	'for',
 	'function',
-	'If',
+	'if',
 	'import',
 	'in',
 	'istanceOf',
@@ -50,7 +50,7 @@ const tsReservedWords = [
 ]
 
 export function getVariables(code: string) {
-	const idRegex = /\w+/g
+	const idRegex = /[a-zA-Z_$][a-zA-Z0-9_$]*/g
 	const ids = code.match(idRegex) || []
 
 	return ids.filter(id => !tsReservedWords.includes(id))
