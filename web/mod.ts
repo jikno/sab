@@ -55,6 +55,7 @@ export async function buildWeb(params: BuildWebOptions) {
 		inputFile: params.inputFile,
 		outputFile: pathUtils.join(params.outputDir, 'build/bundle.js'),
 		watch: params.watch,
+		reload: params.reload,
 		onRebuildDone() {
 			for (const socket of sockets) socket.send('reload')
 
