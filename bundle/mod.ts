@@ -17,7 +17,7 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 			const resolveDir = args.importer ? urlDirname(args.importer) : `file://${args.resolveDir}`
 
 			if (args.path.startsWith('file://') || args.path.startsWith('http://') || args.path.startsWith('https://'))
-				return { path: potentiallyResolveBridge(args.path), namespace: 'resolve' }
+				return { path: args.path, namespace: 'resolve' }
 
 			const importingUrl = new URL(resolveDir)
 
@@ -25,15 +25,15 @@ const resolver = (params: ResolverParams): esBuild.Plugin => ({
 				return buildResolveResult({
 					protocol: importingUrl.protocol,
 					host: importingUrl.host,
-					pathname: potentiallyResolveBridge(args.path),
+					pathname: args.path,
 				})
 
-			const newPath = pathUtils.join(importingUrl.pathname, args.path)
+			const newPath = addExtension(args.importer, pathUtils.join(importingUrl.pathname, args.path))
 
 			return buildResolveResult({
 				protocol: importingUrl.protocol,
 				host: importingUrl.host,
-				pathname: potentiallyResolveBridge(newPath),
+				pathname: newPath,
 			})
 		})
 
@@ -96,8 +96,9 @@ function buildResolveResult(params: BuildUrlParams): esBuild.OnResolveResult {
 	}
 }
 
-function potentiallyResolveBridge(path: string) {
-	if (path.endsWith('.bridge')) return `${path}.ts`
+function addExtension(importer: string, path: string) {
+	if (!importer.endsWith('.svelte')) return path
+	if (!pathUtils.basename(path).includes('.')) return `${path}.ts`
 
 	return path
 }
