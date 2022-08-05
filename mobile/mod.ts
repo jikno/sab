@@ -1,3 +1,4 @@
+import { shIgnore } from 'https://deno.land/x/dtils@1.2.3/mod.ts'
 import { colors, pathUtils, utils } from '../deps.ts'
 import { bundle, UnwindParams } from '../mod.ts'
 import { generatePluginsList } from './boilerplate.ts'
@@ -84,6 +85,12 @@ export async function buildMobile(params: BuildMobileParams) {
 
 		console.log(colors.green('Emit'), capDir)
 		console.log(colors.gray(`The ${capDir} directory should NOT be checked into version control`))
+	}
+
+	if (!(await utils.exists(pathUtils.join(capDir, 'node_modules')))) {
+		await shIgnore('npm install', { cwd: capDir })
+
+		console.log(colors.yellow('Install'), 'Capacitor project dependencies')
 	}
 
 	await sync()
