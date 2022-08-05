@@ -62,9 +62,21 @@ export function generateIndexHtml() {
 				padding-bottom: env(safe-area-inset-bottom);
 				padding-left: env(safe-area-inset-left);
 			}
+			[safe-area-top] {
+				padding-top: env(safe-area-inset-top);
+			}
+			[safe-area-right] {
+				padding-right: env(safe-area-inset-right);
+			}
+			[safe-area-bottom] {
+				padding-bottom: env(safe-area-inset-bottom);
+			}
+			[safe-area-left] {
+				padding-left: env(safe-area-inset-left);
+			}
 		</style>
 	</head>
 	<body ontouchstart=""></body>
-</html>	
+</html>
 `
 }
