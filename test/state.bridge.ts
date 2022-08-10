@@ -2,6 +2,7 @@ import { makeStorable } from 'https://deno.land/x/storable@1.1.1/mod.ts'
 import { getPlugin, isMobile } from '../runtime.ts'
 
 export class AppState {
+	token = makeStorable<string | null>(null)
 	photoUrl = makeStorable<string | null>(null)
 	name = 'Jason'
 
@@ -27,5 +28,9 @@ export class AppState {
 
 	removePhoto() {
 		this.photoUrl.set(null)
+	}
+
+	login(token: string) {
+		this.token.set(token)
 	}
 }
